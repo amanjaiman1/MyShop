@@ -24,7 +24,7 @@ import { Money } from "@/components/common/money";
 import { TodayHero } from "@/components/dashboard/today-hero";
 import { TrendCard } from "@/components/dashboard/trend-card";
 import { createClient } from "@/lib/supabase/server";
-import { getDashboardSnapshot, getProfile } from "@/lib/supabase/queries";
+import { getDashboardSnapshot, getProfile, getShopContext } from "@/lib/supabase/queries";
 import { formatDate, formatPercent, formatTime } from "@/lib/format";
 import { PAYMENT_METHOD_LABELS } from "@/lib/constants";
 import type { DailySeriesRow, SaleRow } from "@/lib/supabase/database.types";
@@ -33,7 +33,8 @@ export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const [snapshot, profile] = await Promise.all([getDashboardSnapshot(), getProfile()]);
+  const [profile, shop] = await Promise.all([getProfile(), getShopContext()]);
+  const { snapshot, ok: snapshotOk } = await getDashboardSnapshot(shop.today);
   const supabase = await createClient();
 
   const [{ data: dailyRaw }, { data: recentRaw }] = await Promise.all([
@@ -80,6 +81,14 @@ export default async function DashboardPage() {
           </>
         }
       />
+
+      {!snapshotOk ? (
+        <div className="rounded-[--radius-md] border border-lowprofit-border bg-lowprofit-soft px-4 py-3 text-sm text-lowprofit">
+          Today&rsquo;s figures couldn&rsquo;t be loaded. This usually means the database
+          migrations weren&rsquo;t fully applied — re-run <code className="font-mono">supabase/setup.sql</code>{" "}
+          in the Supabase SQL Editor. Check your Vercel Runtime Logs for the exact error.
+        </div>
+      ) : null}
 
       <TodayHero snapshot={snapshot} />
 
