@@ -646,6 +646,7 @@ export type Database = {
     Functions: {
       shop_context: { Args: Record<string, never>; Returns: ShopContextRow[] };
       ensure_owner_setup: { Args: Record<string, never>; Returns: ProfileRow };
+      owner_exists: { Args: Record<string, never>; Returns: boolean };
       record_purchase: {
         Args: {
           p_lines: PurchaseLineInput[];

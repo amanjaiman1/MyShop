@@ -1,21 +1,18 @@
--- ===========================================================================
--- Aurelia — COMPLETE DATABASE SETUP (single file)
--- ---------------------------------------------------------------------------
--- All migrations from supabase/migrations/ concatenated in order, so you can
--- set up (or repair) the whole database in ONE paste into the Supabase SQL
--- Editor. Safe to re-run: it uses IF NOT EXISTS / OR REPLACE / ON CONFLICT
--- throughout, so running it again on an existing project only fills gaps.
+-- ════════════════════════════════════════════════════════════════
+-- Aurelia — complete database schema
+-- Run this once in your Supabase project: Dashboard → SQL Editor → paste → Run.
 --
--- HOW TO USE:
---   1. Supabase dashboard -> SQL Editor -> New query
---   2. Paste this entire file  ->  Run
---   3. Expect "Success. No rows returned."
--- ===========================================================================
+-- Safe to re-run: everything uses IF NOT EXISTS / OR REPLACE / ON CONFLICT,
+-- so running it again on an existing project only fills in what's missing.
+--
+-- Creates: 11 tables, Row Level Security on all of them, the FIFO sale
+-- transaction, the reporting functions, and the two Storage buckets.
+-- ════════════════════════════════════════════════════════════════
 
 
--- ###########################################################################
--- ##  20260101000000_schema.sql
--- ###########################################################################
+-- ────────────────────────────────────────────────────────────────
+-- 20260101000000_schema.sql
+-- ────────────────────────────────────────────────────────────────
 
 -- ===========================================================================
 -- Aurelia — core schema
@@ -581,9 +578,9 @@ create trigger expenses_set_updated_at
   for each row execute function public.tg_set_updated_at();
 
 
--- ###########################################################################
--- ##  20260101000100_rls.sql
--- ###########################################################################
+-- ────────────────────────────────────────────────────────────────
+-- 20260101000100_rls.sql
+-- ────────────────────────────────────────────────────────────────
 
 -- ===========================================================================
 -- Aurelia — Row Level Security
@@ -714,9 +711,9 @@ revoke insert, delete on public.profiles from authenticated;
 alter default privileges in schema public revoke execute on functions from public;
 
 
--- ###########################################################################
--- ##  20260101000200_bootstrap.sql
--- ###########################################################################
+-- ────────────────────────────────────────────────────────────────
+-- 20260101000200_bootstrap.sql
+-- ────────────────────────────────────────────────────────────────
 
 -- ===========================================================================
 -- Aurelia — owner bootstrap & shared helpers
@@ -960,9 +957,9 @@ grant execute on function public.require_owner() to authenticated;
 grant execute on function public.shop_context() to authenticated;
 
 
--- ###########################################################################
--- ##  20260101000300_inventory.sql
--- ###########################################################################
+-- ────────────────────────────────────────────────────────────────
+-- 20260101000300_inventory.sql
+-- ────────────────────────────────────────────────────────────────
 
 -- ===========================================================================
 -- Aurelia — inventory: derived stock views, purchase recording, adjustments
@@ -1428,9 +1425,9 @@ grant execute on function public.safe_margin_pct(bigint, bigint) to authenticate
 grant execute on function public.safe_markup_pct(bigint, bigint) to authenticated;
 
 
--- ###########################################################################
--- ##  20260101000400_sales.sql
--- ###########################################################################
+-- ────────────────────────────────────────────────────────────────
+-- 20260101000400_sales.sql
+-- ────────────────────────────────────────────────────────────────
 
 -- ===========================================================================
 -- Aurelia — sales: FIFO checkout, returns, voids
@@ -2190,9 +2187,9 @@ grant execute on function public.return_sale_items(uuid, jsonb, text) to authent
 grant execute on function public.void_sale(uuid, text) to authenticated;
 
 
--- ###########################################################################
--- ##  20260101000500_reporting.sql
--- ###########################################################################
+-- ────────────────────────────────────────────────────────────────
+-- 20260101000500_reporting.sql
+-- ────────────────────────────────────────────────────────────────
 
 -- ===========================================================================
 -- Aurelia — reporting
@@ -3157,9 +3154,9 @@ end;
 $$;
 
 
--- ###########################################################################
--- ##  20260101000600_storage.sql
--- ###########################################################################
+-- ────────────────────────────────────────────────────────────────
+-- 20260101000600_storage.sql
+-- ────────────────────────────────────────────────────────────────
 
 -- ===========================================================================
 -- Aurelia — Supabase Storage
@@ -3255,9 +3252,9 @@ create policy "owner deletes own receipts"
   );
 
 
--- ###########################################################################
--- ##  20260101000700_ensure_setup.sql
--- ###########################################################################
+-- ────────────────────────────────────────────────────────────────
+-- 20260101000700_ensure_setup.sql
+-- ────────────────────────────────────────────────────────────────
 
 -- ===========================================================================
 -- Aurelia — self-healing owner setup
@@ -3321,4 +3318,33 @@ where p.id is null;
 
 revoke all on function public.ensure_owner_setup() from public;
 grant execute on function public.ensure_owner_setup() to authenticated;
+
+
+-- ────────────────────────────────────────────────────────────────
+-- 20260101000800_owner_exists.sql
+-- ────────────────────────────────────────────────────────────────
+
+-- ===========================================================================
+-- Aurelia — first-run detection
+-- ---------------------------------------------------------------------------
+-- Lets the sign-in screen offer a one-time "Create your shop" step when the
+-- deployment has no owner yet, so setting up never requires the Supabase
+-- dashboard or a service-role key.
+--
+-- Returns only a boolean — it never exposes who the owner is. Once an owner
+-- exists it returns true forever and the app becomes sign-in only.
+-- ===========================================================================
+create or replace function public.owner_exists()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (select 1 from public.profiles);
+$$;
+
+revoke all on function public.owner_exists() from public;
+-- Callable before sign-in, so `anon` needs it too.
+grant execute on function public.owner_exists() to anon, authenticated;
 

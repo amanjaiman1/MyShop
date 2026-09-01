@@ -85,8 +85,9 @@ export default async function DashboardPage() {
       {!snapshotOk ? (
         <div className="rounded-[--radius-md] border border-lowprofit-border bg-lowprofit-soft px-4 py-3 text-sm text-lowprofit">
           Today&rsquo;s figures couldn&rsquo;t be loaded. This usually means the database
-          migrations weren&rsquo;t fully applied — re-run <code className="font-mono">supabase/setup.sql</code>{" "}
-          in the Supabase SQL Editor. Check your Vercel Runtime Logs for the exact error.
+          schema wasn&rsquo;t fully applied — re-run{" "}
+          <code className="font-mono">supabase/schema.sql</code> in the Supabase SQL
+          Editor. Your Vercel Runtime Logs show the exact error.
         </div>
       ) : null}
 

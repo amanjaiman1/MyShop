@@ -70,83 +70,110 @@ totals, and reports don't download your whole history to add it up.
 
 ---
 
-## Local setup
+## Setup — three steps
 
-### Prerequisites
+You need a **Supabase** project and (optionally) **Vercel**. There is no
+service-role key to wrangle and no dashboard user-creation step.
 
-- Node.js 20+ and npm
-- A [Supabase](https://supabase.com) project (free tier is fine)
-- Optionally the [Supabase CLI](https://supabase.com/docs/guides/cli) for local
-  development and migrations
+### 1. Create the database
 
-### 1. Install
+Supabase Dashboard → **SQL Editor** → **New query** → paste the entire contents
+of **`supabase/schema.sql`** → **Run**.
 
-```bash
-npm install
-```
+You should see *"Success. No rows returned."* That single file creates all 11
+tables, Row Level Security on every one, the FIFO sale transaction, the
+reporting functions and the Storage buckets. It is safe to re-run at any time —
+re-running only fills in anything missing, so it doubles as a repair step.
 
-### 2. Configure environment
+### 2. Set two environment variables
 
-```bash
-cp .env.example .env.local
-```
+Both come from Supabase → **Project Settings → API**.
 
-Fill in from **Supabase → Project Settings → Data API**:
-
-| Variable | Where |
+| Variable | Value |
 | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon / publishable key |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` locally |
-| `SUPABASE_SERVICE_ROLE_KEY` | service‑role key — **only** for the owner bootstrap and demo seed scripts; never exposed to the browser |
-| `DEMO_OWNER_EMAIL`, `DEMO_OWNER_PASSWORD` | the owner account the seed creates |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://YOUR-PROJECT-REF.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your **anon / public** key |
 
-### 3. Apply the database schema
+**Locally:** `cp .env.example .env.local` and fill them in.
 
-**Option A — Supabase CLI (recommended)**
+**On Vercel:** Project → **Settings → Environment Variables** → add both, ticked
+for **Production, Preview and Development** → then **Redeploy**.
 
-```bash
-supabase link --project-ref <your-project-ref>
-supabase db push          # applies everything in supabase/migrations
-```
+> The `NEXT_PUBLIC_` prefix is required. Next.js inlines these at build time and
+> the browser cannot read server-only variables — this is why the Supabase↔Vercel
+> integration alone (which creates `SUPABASE_URL` / `SUPABASE_ANON_KEY`) isn't
+> sufficient on its own. These are public values; your data is protected by Row
+> Level Security, not by hiding the anon key.
 
-**Option B — SQL editor**
+### 3. Open the app and claim your shop
 
-Open each file in `supabase/migrations/` in order (they are named
-chronologically) and run them in the Supabase SQL editor.
+Install dependencies and start the dev server (`npm install`, then
+`npm run dev`) and open <http://localhost:3000> — or just open your Vercel URL.
 
-The migrations create all tables, constraints, indexes, RLS policies, the FIFO
-sale RPC, the reporting RPCs, and the Storage buckets.
+On first visit the sign-in screen shows **"Create your shop"** — enter your email
+and password once and you're in. The database seeds your profile and default
+product/expense categories automatically. After that, this screen is sign-in
+only; there is no ongoing public registration.
 
-### 4. Create the owner & (optionally) seed demo data
+> **If Supabase asks you to confirm your email**, either click the link in the
+> email, or turn confirmation off first: Supabase → **Authentication → Providers
+> → Email** → uncheck **Confirm email**.
 
-There is **no public sign‑up** — Aurelia is a single‑owner ledger. The seed
-script creates the owner account for you and fills the shop with realistic data:
+That's it. You're ready to add products, record a purchase and start selling.
 
-```bash
-npm run seed:demo
-```
+---
 
-This signs in as the owner and drives the real `record_purchase` /
-`complete_sale` RPCs, so it also serves as an end‑to‑end smoke test of FIFO
-costing. It creates lipsticks, foundations, skincare, perfumes, eyeliners,
-mascaras and nail products with multiple cost batches (including a 100‑unit
-batch and deliberately profitable, low‑margin, break‑even and loss‑making
-sales) spread across dates so **every** report window is meaningful.
+## Optional: load demo data
 
-> Prefer to start empty? Create the owner yourself in **Supabase → Authentication
-> → Add user** (set "Auto Confirm"), and sign in. The `on_auth_user_created`
-> trigger seeds the profile plus default product & expense categories.
+Want a shop already full of realistic products, purchases, sales and expenses
+spanning every reporting period?
 
-### 5. Run
+Add these to `.env.local` (the service-role key is a **secret** — local only,
+never in Vercel, never committed):
 
 ```bash
-npm run dev          # http://localhost:3000
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+DEMO_OWNER_EMAIL=owner@yourshop.com
+DEMO_OWNER_PASSWORD=choose-a-strong-password
 ```
 
-Sign in with your owner credentials (or the demo ones printed by the seed).
+Then run `npm run seed:demo`. It creates the owner account and drives the real
+purchase/sale functions, so it doubles as an end-to-end check of FIFO costing.
 
-### Useful scripts
+---
+
+## Deploying to Vercel
+
+1. **Import** the repository in Vercel — the Next.js preset is detected
+   automatically.
+2. Add the **two environment variables** from step 2 above, then **Deploy**.
+3. So password-reset emails link back correctly, go to Supabase →
+   **Authentication → URL Configuration** and set:
+   - **Site URL** → your Vercel domain, e.g. `https://your-shop.vercel.app`
+   - **Redirect URLs** → add `https://your-shop.vercel.app/auth/callback`
+
+Optionally set `NEXT_PUBLIC_SITE_URL` to your domain; if you leave it out,
+Aurelia falls back to the Vercel deployment URL.
+
+---
+
+## Troubleshooting
+
+| Symptom | Cause & fix |
+| --- | --- |
+| Build fails with *"Supabase is not configured"* | The two `NEXT_PUBLIC_` variables aren't set in Vercel. Add them and redeploy. |
+| *"Something went wrong"* after signing in | The schema wasn't fully applied. Re-run `supabase/schema.sql` (safe to re-run), then reload. |
+| Sign-in rejects you on a brand-new project | No owner exists yet — the screen should offer **"Create your shop"**. If it doesn't, the schema hasn't been applied. |
+| Stuck on *"Confirm your email"* | Click the emailed link, or disable **Confirm email** in Supabase → Authentication → Providers → Email. |
+| Product image upload fails | The Storage buckets are missing — re-run `supabase/schema.sql`. |
+| A CSP / `antd` stylesheet error in the browser console while on the Vercel dashboard | That's Vercel's own UI, not this app. Harmless — ignore it. |
+
+To see the real cause of any server-side error, open **Vercel → your deployment
+→ Logs** and look for lines prefixed `[aurelia]`.
+
+---
+
+## Useful scripts
 
 | Script | Purpose |
 | --- | --- |
@@ -157,32 +184,10 @@ Sign in with your owner credentials (or the demo ones printed by the seed).
 | `npm run verify` | typecheck + lint + build |
 | `npm run seed:demo` | Create the owner and seed demo data |
 | `npm run generate:icons` | Regenerate PWA icons from the SVG mark |
-| `npm run test:db` | Run the database logic suite (needs Docker) |
-| `npm run db:types` | Regenerate `database.types.ts` from a linked project |
+| `npm run test:db` | Run the database logic suites (needs Docker) |
 
 ---
 
-## Deploying to Vercel
-
-1. Push this repository to GitHub/GitLab and **import it into Vercel**. The
-   framework preset is detected automatically (Next.js).
-2. In **Vercel → Project → Settings → Environment Variables**, add:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_SITE_URL` → your production domain, e.g. `https://aurelia.example.com`
-
-   Do **not** add `SUPABASE_SERVICE_ROLE_KEY` unless you intend to run the seed
-   from that environment — it is a server‑only secret used by local scripts.
-3. In **Supabase → Authentication → URL Configuration**, set the **Site URL** to
-   your Vercel domain and add `https://<domain>/auth/callback` to the redirect
-   allow‑list, so password‑reset links resolve correctly.
-4. Deploy. The service worker and manifest are served from `/public` with the
-   correct cache headers (see `next.config.ts`).
-
-Because every table is protected by Row Level Security, the publishable anon key
-is safe in the browser.
-
----
 
 ## Security notes
 
