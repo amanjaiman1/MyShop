@@ -2,7 +2,7 @@
   "name": "aurelia",
   "version": "1.0.0",
   "private": true,
-  "description": "Aurelia \u2014 cosmetics resale inventory, sales and profit-management PWA",
+  "description": "Aurelia — cosmetics resale inventory, sales and profit-management PWA",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -48,7 +48,7 @@
     "date-fns": "^4.1.0",
     "jsbarcode": "^3.12.1",
     "lucide-react": "^0.545.0",
-    "next": "15.5.4",
+    "next": "15.5.9",
     "qrcode": "^1.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
