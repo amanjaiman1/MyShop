@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { env } from "@/lib/env";
+import { assertSupabaseConfig, env } from "@/lib/env";
 import type { Database } from "./database.types";
 
 /** Routes reachable without a session. Everything else is protected. */
@@ -17,6 +17,10 @@ const isPublic = (pathname: string): boolean =>
  * shell before being bounced to the login screen.
  */
 export async function updateSession(request: NextRequest): Promise<NextResponse> {
+  // Fail clearly (in logs) rather than with a cryptic client error if the
+  // deployment is missing its Supabase env vars.
+  assertSupabaseConfig();
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(

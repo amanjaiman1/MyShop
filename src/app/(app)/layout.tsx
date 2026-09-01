@@ -4,6 +4,10 @@ import { MobileHeader } from "@/components/shell/mobile-header";
 import { ShopProvider, shopContextFromProfile } from "@/components/providers/shop-provider";
 import { getProfile, getShopContext } from "@/lib/supabase/queries";
 
+// The entire authenticated app is per-user and session-dependent, so nothing
+// under this layout may be statically prerendered at build time.
+export const dynamic = "force-dynamic";
+
 /**
  * The authenticated application shell.
  *

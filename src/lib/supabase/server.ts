@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { env } from "@/lib/env";
+import { assertSupabaseConfig, env } from "@/lib/env";
 import type { Database } from "./database.types";
 
 /**
@@ -11,6 +11,7 @@ import type { Database } from "./database.types";
  * the session, so silently ignoring the write is correct rather than fatal.
  */
 export async function createClient() {
+  assertSupabaseConfig();
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
