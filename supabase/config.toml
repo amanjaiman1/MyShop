@@ -1,0 +1,37 @@
+# Supabase CLI config for local development (`supabase start`, `supabase db reset`).
+# The project ref is set when you run `supabase link`.
+project_id = "aurelia"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+# Set to your deployed URL in production so email links resolve correctly.
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = false
+
+[auth.email]
+enable_signup = false
+double_confirm_changes = true
+enable_confirmations = false
+
+[storage]
+enabled = true
+file_size_limit = "10MiB"

@@ -1,0 +1,41 @@
+{
+  "name": "Aurelia — Beauty inventory & profit",
+  "short_name": "Aurelia",
+  "description": "Inventory, purchase costs, FIFO profit and daily P&L for a cosmetics resale shop.",
+  "id": "/dashboard",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FBF7F4",
+  "theme_color": "#FBF7F4",
+  "categories": ["business", "productivity", "shopping"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan & Sell",
+      "short_name": "Sell",
+      "url": "/sell",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Record purchase",
+      "short_name": "Purchase",
+      "url": "/purchases/new",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Profit & Loss",
+      "short_name": "P&L",
+      "url": "/reports/pl",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

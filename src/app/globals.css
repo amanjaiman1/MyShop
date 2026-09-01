@@ -1,0 +1,460 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ==========================================================================
+   AURELIA DESIGN TOKENS
+   "Modern luxury beauty boutique" — warm ivory ground, deep charcoal ink,
+   berry / rose / plum / champagne accents, semantic profit-status palette.
+   Every colour, shadow, radius and spacing step used in the app comes from
+   here. Do not introduce arbitrary hex values in components.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* --- Backgrounds ------------------------------------------------------ */
+  --bg-canvas: #fbf7f4; /* warm ivory page ground */
+  --bg-canvas-alt: #f6efe9; /* pearl, for banded sections */
+  --bg-veil: rgba(36, 31, 30, 0.44); /* modal scrim */
+
+  /* --- Surfaces --------------------------------------------------------- */
+  --surface: #fffdfc; /* card / sheet */
+  --surface-raised: #ffffff; /* popovers, floating bars */
+  --surface-sunken: #f4ece6; /* inset wells, table headers */
+  --surface-muted: #faf5f1; /* subtle rows, disabled fields */
+
+  /* --- Text ------------------------------------------------------------- */
+  --text: #241f1e; /* deep charcoal */
+  --text-strong: #140f0f;
+  --text-muted: #796c66; /* secondary copy, labels */
+  --text-subtle: #a2938c; /* meta, placeholders */
+  --text-on-accent: #fffaf7;
+
+  /* --- Primary accent (berry rose) -------------------------------------- */
+  --primary: #9e1f47;
+  --primary-hover: #8a1a3d;
+  --primary-active: #74142f;
+  --primary-soft: #fbeaf0;
+  --primary-soft-hover: #f6dbe4;
+  --primary-ring: rgba(158, 31, 71, 0.32);
+
+  /* --- Secondary accents ------------------------------------------------ */
+  --plum: #5b2a4a;
+  --plum-soft: #f3eaf1;
+  --rose: #c9648a;
+  --rose-soft: #fdf0f4;
+  --gold: #b08a4d; /* muted champagne gold */
+  --gold-hover: #99763f;
+  --gold-soft: #f9f1e3;
+
+  /* --- Semantic financial status ---------------------------------------- */
+  --profit: #1c7a58;
+  --profit-strong: #14603f;
+  --profit-soft: #e7f4ee;
+  --profit-border: #bfe1d2;
+
+  --low-profit: #a86910;
+  --low-profit-strong: #8a5406;
+  --low-profit-soft: #fdf2e0;
+  --low-profit-border: #eed9b2;
+
+  --breakeven: #6d5f59;
+  --breakeven-strong: #55483f;
+  --breakeven-soft: #f2ece8;
+  --breakeven-border: #ded1c8;
+
+  --loss: #c01f38;
+  --loss-strong: #99162a;
+  --loss-soft: #fdeaed;
+  --loss-border: #f4c6ce;
+
+  --info: #2c5f8a;
+  --info-soft: #e9f1f8;
+
+  /* --- Borders ---------------------------------------------------------- */
+  --border: #ece1d9;
+  --border-strong: #dccdc2;
+  --border-accent: #eccdd8;
+  --border-focus: var(--primary);
+
+  /* --- Shadows (soft, layered, warm) ----------------------------------- */
+  --shadow-xs: 0 1px 2px rgba(74, 51, 42, 0.05);
+  --shadow-sm:
+    0 1px 2px rgba(74, 51, 42, 0.05), 0 2px 6px -2px rgba(74, 51, 42, 0.07);
+  --shadow-md:
+    0 2px 4px rgba(74, 51, 42, 0.04), 0 8px 18px -6px rgba(74, 51, 42, 0.11);
+  --shadow-lg:
+    0 4px 8px rgba(74, 51, 42, 0.05), 0 18px 34px -12px rgba(74, 51, 42, 0.14);
+  --shadow-xl:
+    0 8px 16px rgba(74, 51, 42, 0.06), 0 32px 60px -20px rgba(74, 51, 42, 0.2);
+  --shadow-primary: 0 10px 24px -10px rgba(158, 31, 71, 0.5);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  /* --- Radii ------------------------------------------------------------ */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 30px;
+  --radius-pill: 999px;
+
+  /* --- Spacing scale ---------------------------------------------------- */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+
+  /* --- Layout ----------------------------------------------------------- */
+  --sidebar-w: 17rem;
+  --sidebar-w-collapsed: 4.75rem;
+  --bottom-nav-h: 4.75rem;
+  --header-h: 4rem;
+  --tap-target: 2.75rem;
+
+  /* --- Motion ----------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --dur-slow: 320ms;
+
+  /* --- Gradients (restrained) ------------------------------------------ */
+  --grad-primary: linear-gradient(135deg, #a72350 0%, #7c1b3c 55%, #5b2a4a 100%);
+  --grad-champagne: linear-gradient(135deg, #f9f1e3 0%, #f3e3ca 100%);
+  --grad-canvas: linear-gradient(180deg, #fdfaf8 0%, #fbf7f4 42%, #f7f0ea 100%);
+  --grad-sheen: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* ==========================================================================
+   Tailwind theme bridge — exposes the tokens above as utilities
+   ========================================================================== */
+@theme inline {
+  --color-canvas: var(--bg-canvas);
+  --color-canvas-alt: var(--bg-canvas-alt);
+  --color-veil: var(--bg-veil);
+
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-muted: var(--surface-muted);
+
+  --color-ink: var(--text);
+  --color-ink-strong: var(--text-strong);
+  --color-muted: var(--text-muted);
+  --color-subtle: var(--text-subtle);
+  --color-on-accent: var(--text-on-accent);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-hover: var(--primary-soft-hover);
+
+  --color-plum: var(--plum);
+  --color-plum-soft: var(--plum-soft);
+  --color-rose: var(--rose);
+  --color-rose-soft: var(--rose-soft);
+  --color-gold: var(--gold);
+  --color-gold-hover: var(--gold-hover);
+  --color-gold-soft: var(--gold-soft);
+
+  --color-profit: var(--profit);
+  --color-profit-strong: var(--profit-strong);
+  --color-profit-soft: var(--profit-soft);
+  --color-profit-border: var(--profit-border);
+
+  --color-lowprofit: var(--low-profit);
+  --color-lowprofit-strong: var(--low-profit-strong);
+  --color-lowprofit-soft: var(--low-profit-soft);
+  --color-lowprofit-border: var(--low-profit-border);
+
+  --color-breakeven: var(--breakeven);
+  --color-breakeven-strong: var(--breakeven-strong);
+  --color-breakeven-soft: var(--breakeven-soft);
+  --color-breakeven-border: var(--breakeven-border);
+
+  --color-loss: var(--loss);
+  --color-loss-strong: var(--loss-strong);
+  --color-loss-soft: var(--loss-soft);
+  --color-loss-border: var(--loss-border);
+
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-line-accent: var(--border-accent);
+
+  --font-display: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-code), ui-monospace, SFMono-Regular, monospace;
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-pill: var(--radius-pill);
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--grad-canvas);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv05" 1, "ss01" 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  /* Financial figures always align in columns */
+  .tnum,
+  table td,
+  table th {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: var(--primary-soft-hover);
+    color: var(--primary-active);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  /* Warm, slim scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: var(--radius-pill);
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+
+  /* Remove number-input spinners: money is typed, not nudged */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+}
+
+/* ==========================================================================
+   Composed utilities
+   ========================================================================== */
+@utility display-title {
+  font-family: var(--font-display), serif;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+}
+
+@utility eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+@utility card-surface {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+@utility gradient-primary {
+  background-image: var(--grad-primary);
+}
+
+@utility gradient-champagne {
+  background-image: var(--grad-champagne);
+}
+
+@utility hairline-top {
+  border-top: 1px solid var(--border);
+}
+
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@utility safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Gold hairline used to separate editorial headers */
+@utility rule-champagne {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    var(--gold) 0%,
+    var(--border-accent) 32%,
+    transparent 100%
+  );
+}
+
+/* ==========================================================================
+   Micro-interactions (subtle, restrained)
+   ========================================================================== */
+@keyframes aurelia-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: var(--grad-sheen);
+  animation: aurelia-shimmer 1.6s infinite;
+}
+
+@keyframes aurelia-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: aurelia-rise var(--dur-slow) var(--ease-out) both;
+}
+
+@keyframes aurelia-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 var(--primary-ring);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(158, 31, 71, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(158, 31, 71, 0);
+  }
+}
+.pulse-ring {
+  animation: aurelia-pulse-ring 2.4s var(--ease-out) infinite;
+}
+
+/* Scanner reticle sweep */
+@keyframes aurelia-scanline {
+  0%,
+  100% {
+    top: 8%;
+  }
+  50% {
+    top: 92%;
+  }
+}
+.scanline {
+  animation: aurelia-scanline 2.6s var(--ease-in-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Print — label sheets & report printing
+   ========================================================================== */
+@media print {
+  @page {
+    margin: 8mm;
+  }
+  body {
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-sheet {
+    box-shadow: none !important;
+    border: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+}
+.print-only {
+  display: none;
+}
