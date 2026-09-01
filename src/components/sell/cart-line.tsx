@@ -41,9 +41,15 @@ export function CartLine({
   const [priceText, setPriceText] = React.useState(toMoneyInput(item.unitSellingPrice));
   const [discountText, setDiscountText] = React.useState(toMoneyInput(item.lineDiscount));
 
-  React.useEffect(() => {
+  // Keep the text field in step when the price changes from outside this input
+  // (e.g. the cart is restored, or the same product is scanned again). Adjusting
+  // state during render is React's documented pattern for deriving from props —
+  // it avoids the extra commit an effect would cause.
+  const [syncedPrice, setSyncedPrice] = React.useState(item.unitSellingPrice);
+  if (item.unitSellingPrice !== syncedPrice) {
+    setSyncedPrice(item.unitSellingPrice);
     setPriceText(toMoneyInput(item.unitSellingPrice));
-  }, [item.unitSellingPrice]);
+  }
 
   // Prefer the DB preview (true multi-batch FIFO cost); fall back to the
   // line's oldest-batch cost for instant feedback while the preview loads.

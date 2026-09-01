@@ -67,9 +67,13 @@ export function PriceSimulator({
 
   // Keep the text field in step when a parent changes the controlled value
   // (e.g. a "use recommended" quick action), without fighting the user's typing.
-  React.useEffect(() => {
-    if (value !== undefined) setText(toMoneyInput(value));
-  }, [value]);
+  // Adjusting state during render is React's documented way to derive from
+  // props; an effect here would cost an extra commit on every keystroke.
+  const [syncedValue, setSyncedValue] = React.useState(value);
+  if (value !== undefined && value !== syncedValue) {
+    setSyncedValue(value);
+    setText(toMoneyInput(value));
+  }
 
   const analysis = React.useMemo(
     () =>

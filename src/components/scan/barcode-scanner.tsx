@@ -143,9 +143,15 @@ export function BarcodeScanner({
   );
 
   React.useEffect(() => {
-    void start(0);
-    return () => stop();
-    // start only on mount; device switches call start(index) directly.
+    // Deferred a tick so the camera handshake (and its status updates) happens
+    // after the first paint — the reticle renders immediately instead of
+    // waiting on getUserMedia.
+    const t = window.setTimeout(() => void start(0), 0);
+    return () => {
+      window.clearTimeout(t);
+      stop();
+    };
+    // Mount only; device switches call start(index) directly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

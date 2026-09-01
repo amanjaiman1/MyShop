@@ -18,13 +18,23 @@ export function OnlineProvider({ children }: { children: React.ReactNode }) {
   // SSR, and flashing an offline banner on every load would be worse than a
   // brief optimistic assumption.
   const [online, setOnline] = React.useState(true);
+  // Tracked here (not in the banner) so it can be set from the same event
+  // handler as `online`, rather than in an effect that reacts to it.
+  const [everOffline, setEverOffline] = React.useState(false);
 
   React.useEffect(() => {
-    const update = () => setOnline(navigator.onLine);
-    update();
+    const update = () => {
+      const next = navigator.onLine;
+      setOnline(next);
+      if (!next) setEverOffline(true);
+    };
+    // Read once on mount via the same handler, deferred to a microtask so the
+    // initial paint isn't interrupted by a synchronous state update.
+    const initial = window.setTimeout(update, 0);
     window.addEventListener("online", update);
     window.addEventListener("offline", update);
     return () => {
+      window.clearTimeout(initial);
       window.removeEventListener("online", update);
       window.removeEventListener("offline", update);
     };
@@ -33,7 +43,7 @@ export function OnlineProvider({ children }: { children: React.ReactNode }) {
   return (
     <OnlineContext.Provider value={online}>
       {children}
-      <OfflineBanner online={online} />
+      <OfflineBanner online={online} everOffline={everOffline} />
     </OnlineContext.Provider>
   );
 }
@@ -42,13 +52,13 @@ export function useOnline(): boolean {
   return React.useContext(OnlineContext);
 }
 
-function OfflineBanner({ online }: { online: boolean }) {
-  const [everOffline, setEverOffline] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!online) setEverOffline(true);
-  }, [online]);
-
+function OfflineBanner({
+  online,
+  everOffline,
+}: {
+  online: boolean;
+  everOffline: boolean;
+}) {
   // Show a reassuring "back online" flash only if we were actually offline.
   if (online && !everOffline) return null;
 

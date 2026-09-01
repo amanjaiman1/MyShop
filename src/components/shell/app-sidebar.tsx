@@ -19,10 +19,18 @@ const STORAGE_KEY = "aurelia:sidebar-collapsed";
 export function AppSidebar() {
   const pathname = usePathname();
   const { shopName, displayName } = useShop();
+  // Read the remembered preference from localStorage after mount. It cannot be
+  // the initial state (the server has no localStorage, so it would hydrate
+  // mismatched), and it is deferred to a microtask so the first paint isn't
+  // interrupted by a synchronous state update.
   const [collapsed, setCollapsed] = React.useState(false);
 
   React.useEffect(() => {
-    setCollapsed(window.localStorage.getItem(STORAGE_KEY) === "1");
+    const t = window.setTimeout(
+      () => setCollapsed(window.localStorage.getItem(STORAGE_KEY) === "1"),
+      0,
+    );
+    return () => window.clearTimeout(t);
   }, []);
 
   const toggle = () => {

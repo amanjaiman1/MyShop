@@ -58,8 +58,11 @@ export function SellWorkspace() {
     reset,
   } = useCart();
 
-  const [preview, setPreview] = React.useState<PreviewSaleResult | null>(null);
+  const [fetchedPreview, setPreview] = React.useState<PreviewSaleResult | null>(null);
   const [previewLoading, setPreviewLoading] = React.useState(false);
+  // An empty cart has no preview by definition — derived rather than stored, so
+  // clearing the cart needs no state update.
+  const preview = items.length === 0 ? null : fetchedPreview;
   const [submitting, setSubmitting] = React.useState(false);
   const [confirm, setConfirm] = React.useState<null | "loss" | "breakeven">(null);
 
@@ -69,13 +72,12 @@ export function SellWorkspace() {
   // against out-of-order responses when the owner types quickly.
   const reqId = React.useRef(0);
   React.useEffect(() => {
-    if (items.length === 0) {
-      setPreview(null);
-      return;
-    }
+    if (items.length === 0) return;
     const id = ++reqId.current;
-    setPreviewLoading(true);
     const timer = setTimeout(async () => {
+      // Flagged once the debounce actually fires, so rapid edits don't flicker
+      // the spinner on every keystroke.
+      setPreviewLoading(true);
       const supabase = createClient();
       const { data } = await supabase.rpc("preview_sale", {
         p_items: items.map((i) => ({

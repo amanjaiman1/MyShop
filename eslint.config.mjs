@@ -1,14 +1,14 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypeScript from "eslint-config-next/typescript";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({ baseDirectory: __dirname });
-
+/**
+ * Flat config. eslint-config-next 16 ships native flat-config arrays, so they
+ * are spread directly — the older FlatCompat/`extends` wrapper is no longer
+ * needed (and breaks against v16).
+ */
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextCoreWebVitals,
+  ...nextTypeScript,
   {
     rules: {
       "@typescript-eslint/no-unused-vars": [
@@ -19,7 +19,7 @@ const eslintConfig = [
         "error",
         { prefer: "type-imports", fixStyle: "inline-type-imports" },
       ],
-      // Money must never be rendered by string concatenation of raw numbers.
+      // Money must never depend on non-deterministic values.
       "no-restricted-syntax": [
         "error",
         {
